@@ -24,7 +24,7 @@ lx, ly     = 10.0, 10.0;                                 # Length of domain in d
 
 # Numerics
 nx, ny = 256, 256;                              # Number of gridpoints dimensions x, y and z.
-nt         = 100;                                        # Number of time steps
+nt         = 30;                                        # Number of time steps
 init_global_grid(nx, ny, 0);
 dx         = lx/(nx_g()-1);                              # Space step in x-dimension
 dy         = ly/(ny_g()-1);                              # Space step in y-dimension
@@ -49,9 +49,10 @@ for it = 1:nt
     T, T2 = T2, T;
 end
 
-heatmap(T[:,:], aspect_ratio=1, color=:viridis, cbar=false, title="Temperature distribution")
+p = heatmap(T[:,:], aspect_ratio=1, color=:viridis, cbar=false, title="Temperature distribution")
 
 finalize_global_grid();
+return p 
 end
 
 diffusion2D()
