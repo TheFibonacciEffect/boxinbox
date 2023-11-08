@@ -32,6 +32,19 @@ end
     return
 end
 
+@parallel_indices (i,j) function innerbox!(P::Data.Array, P_left::Data.Number, P_right::Data.Number, P_top::Data.Number, P_bottom::Data.Number)
+    if i==size(P,1) ÷ 3
+        P[i,j] = P_left
+    elseif i==2*size(P,1) ÷ 3
+        P[i,j] = P_right
+    elseif j==size(P,2) ÷ 3
+        P[i,j] = P_bottom
+    elseif j==2*size(P,2) ÷ 3
+        P[i,j] = P_top
+    end
+    return
+end
+
 ##################################################
 @views function acoustic2D()
     # Physics
@@ -50,7 +63,7 @@ end
     Vx        = @zeros(nx+1,ny  )
     Vy        = @zeros(nx  ,ny+1)
     # Initial conditions
-    P        .= Data.Array([exp(-((ix-1)*dx-0.5*lx)^2 -((iy-1)*dy-0.5*ly)^2) for ix=1:size(P,1), iy=1:size(P,2)])
+    # P        .= Data.Array([exp(-((ix-1)*dx-0.5*lx)^2 -((iy-1)*dy-0.5*ly)^2) for ix=1:size(P,1), iy=1:size(P,2)])
     dt        = min(dx,dy)/sqrt(k/ρ)/4.1
     # Preparation of visualisation
     ENV["GKSwstype"]="nul"; if isdir("viz2D_out")==false mkdir("viz2D_out") end; loadpath = "./viz2D_out/"; anim = Animation(loadpath,String[])
@@ -60,7 +73,8 @@ end
     for it = 1:nt
         if (it==11)  global wtime0 = Base.time()  end
         @parallel compute_V!(Vx, Vy, P, dt, ρ, dx, dy)
-        @parallel boundary!(P, 1.0, 0.0, 0.0, 0.0)
+        @parallel boundary!(P, 0.0, 0.0, 0.0, 0.0)
+        @parallel innerbox!(P, 1.0, 1.0, 1.0, 1.0)
         @parallel compute_P!(P, Vx, Vy, dt, k, dx, dy)
         t = t + dt
         # Visualisation
