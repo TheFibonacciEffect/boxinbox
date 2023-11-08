@@ -53,7 +53,7 @@ end
     ρ         = 1.0         # density
     t         = 0.0         # physical time
     # Numerics
-    nx, ny    = 255, 255    # numerical grid resolution; should be a mulitple of 32-1 for optimal GPU perf
+    nx, ny    = 1000, 1000    # numerical grid resolution; should be a mulitple of 32-1 for optimal GPU perf
     nt        = 3000        # number of timesteps
     nout      = 10          # plotting frequency
     # Derived numerics
