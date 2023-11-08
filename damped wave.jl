@@ -15,7 +15,20 @@ using Plots, Printf, Statistics
 end
 
 @parallel function compute_P!(P::Data.Array, Vx::Data.Array, Vy::Data.Array, dt::Data.Number, k::Data.Number, dx::Data.Number, dy::Data.Number)
-    @all(P) = @all(P) - dt*k*(@d_xa(Vx)/dx + @d_ya(Vy)/dy)
+    @all(P) = @all(P) - dt*k*(@d_xa(Vx)/dx + @d_ya(Vy)/dy + 0*@all(P))
+    return
+end
+
+@parallel_indices (i,j) function boundary!(P::Data.Array, P_left::Data.Number, P_right::Data.Number, P_top::Data.Number, P_bottom::Data.Number)
+    if i==1
+        P[i,j] = P_left
+    elseif i==size(P,1)
+        P[i,j] = P_right
+    elseif j==1
+        P[i,j] = P_bottom
+    elseif j==size(P,2)
+        P[i,j] = P_top
+    end
     return
 end
 
@@ -47,6 +60,7 @@ end
     for it = 1:nt
         if (it==11)  global wtime0 = Base.time()  end
         @parallel compute_V!(Vx, Vy, P, dt, ρ, dx, dy)
+        @parallel boundary!(P, 0.0, 0.0, 0.0, 0.0)
         @parallel compute_P!(P, Vx, Vy, dt, k, dx, dy)
         t = t + dt
         # Visualisation
