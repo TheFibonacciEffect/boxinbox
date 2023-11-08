@@ -78,17 +78,19 @@ end
         @parallel compute_P!(P, Vx, Vy, dt, k, dx, dy)
         t = t + dt
         # Visualisation
-        if mod(it,nout)==0
-            heatmap(X, Y, Array(P)', aspect_ratio=1, xlims=(X[1],X[end]), ylims=(Y[1],Y[end]), c=:viridis, title="Pressure"); frame(anim)
-        end
+        # if mod(it,nout)==0
+        #     heatmap(X, Y, Array(P)', aspect_ratio=1, xlims=(X[1],X[end]), ylims=(Y[1],Y[end]), c=:viridis, title="Pressure"); frame(anim)
+        # end
     end
     # Performance
+    heatmap(X, Y, Array(P)', aspect_ratio=1, xlims=(X[1],X[end]), ylims=(Y[1],Y[end]), c=:viridis, title="Pressure"); frame(anim)
     wtime    = Base.time()-wtime0
     A_eff    = (3*2)/1e9*nx*ny*sizeof(Data.Number)  # Effective main memory access per iteration [GB] (Lower bound of required memory access: H and dHdτ have to be read and written (dHdτ for damping): 4 whole-array memaccess; B has to be read: 1 whole-array memaccess)
     wtime_it = wtime/(nt-10)                        # Execution time per iteration [s]
     T_eff    = A_eff/wtime_it                       # Effective memory throughput [GB/s]
     @printf("Total steps=%d, time=%1.3e sec (@ T_eff = %1.2f GB/s) \n", nt, wtime, round(T_eff, sigdigits=2))
-    gif(anim, "acoustic2D.gif", fps = 15)
+    # gif(anim, "acoustic2D.gif", fps = 15)
+    savefig("acoustic2D.png")
     return
 end
 
