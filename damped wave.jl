@@ -74,7 +74,7 @@ end
         if (it==11)  global wtime0 = Base.time()  end
         @parallel compute_V!(Vx, Vy, P, dt, ρ, dx, dy)
         @parallel boundary!(P, 0.0, 0.0, 0.0, 0.0)
-        @parallel innerbox!(P, 1.0, 1.0, 1.0, 1.0)
+        @parallel innerbox!(P, 0.0, 0.0, 0.0, 0.0)
         @parallel compute_P!(P, Vx, Vy, dt, k, dx, dy)
         t = t + dt
         # Visualisation
