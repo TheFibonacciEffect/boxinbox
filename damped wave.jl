@@ -15,7 +15,7 @@ using Plots, Printf, Statistics
 end
 
 @parallel function compute_P!(P::Data.Array, Vx::Data.Array, Vy::Data.Array, dt::Data.Number, k::Data.Number, dx::Data.Number, dy::Data.Number)
-    @all(P) = @all(P) - dt*k*(@d_xa(Vx)/dx + @d_ya(Vy)/dy + 0.5*@all(P))
+    @all(P) = @all(P) - dt*k*(@d_xa(Vx)/dx + @d_ya(Vy)/dy + 0.75*@all(P)) #+ 0.5*@all(P)
     return
 end
 
@@ -54,7 +54,7 @@ end
     t         = 0.0         # physical time
     # Numerics
     nx, ny    = 255, 255    # numerical grid resolution; should be a mulitple of 32-1 for optimal GPU perf
-    nt        = 1000        # number of timesteps
+    nt        = 3000        # number of timesteps
     nout      = 10          # plotting frequency
     # Derived numerics
     dx, dy    = lx/(nx-1), ly/(ny-1) # cell sizes
@@ -63,7 +63,8 @@ end
     Vx        = @zeros(nx+1,ny  )
     Vy        = @zeros(nx  ,ny+1)
     # Initial conditions
-    P        .= Data.Array([exp(-((ix-1)*dx-0.5*lx)^2 -((iy-1)*dy-0.5*ly)^2) for ix=1:size(P,1), iy=1:size(P,2)])
+    # P        .= Data.Array([exp(-((ix-1)*dx-0.5*lx)^2 -((iy-1)*dy-0.5*ly)^2) for ix=1:size(P,1), iy=1:size(P,2)])
+    P        .= Data.Array([randn() for ix=1:size(P,1), iy=1:size(P,2)])
     dt        = min(dx,dy)/sqrt(k/ρ)/4.1
     # Preparation of visualisation
     ENV["GKSwstype"]="nul"; if isdir("viz2D_out")==false mkdir("viz2D_out") end; loadpath = "./viz2D_out/"; anim = Animation(loadpath,String[])
@@ -73,14 +74,14 @@ end
     for it = 1:nt
         if (it==11)  global wtime0 = Base.time()  end
         @parallel compute_V!(Vx, Vy, P, dt, ρ, dx, dy)
-        @parallel boundary!(P, 0.0, 0.0, 0.0, 0.0)
-        @parallel innerbox!(P, 0.0, 0.0, 0.0, 0.0)
         @parallel compute_P!(P, Vx, Vy, dt, k, dx, dy)
+        @parallel boundary!(P, 0.0, 0.0, 0.0, 0.0)
+        @parallel innerbox!(P, 1.0, 1.0, 1.0, 1.0)
         t = t + dt
         # Visualisation
-        # if mod(it,nout)==0
-        #     heatmap(X, Y, Array(P)', aspect_ratio=1, xlims=(X[1],X[end]), ylims=(Y[1],Y[end]), c=:viridis, title="Pressure"); frame(anim)
-        # end
+        if mod(it,nout)==0
+            heatmap(X, Y, Array(P)', aspect_ratio=1, xlims=(X[1],X[end]), ylims=(Y[1],Y[end]), c=:viridis, title="Pressure"); frame(anim)
+        end
     end
     # Performance
     heatmap(X, Y, Array(P)', aspect_ratio=1, xlims=(X[1],X[end]), ylims=(Y[1],Y[end]), c=:viridis, title="Pressure"); frame(anim)
@@ -89,7 +90,7 @@ end
     wtime_it = wtime/(nt-10)                        # Execution time per iteration [s]
     T_eff    = A_eff/wtime_it                       # Effective memory throughput [GB/s]
     @printf("Total steps=%d, time=%1.3e sec (@ T_eff = %1.2f GB/s) \n", nt, wtime, round(T_eff, sigdigits=2))
-    # gif(anim, "acoustic2D.gif", fps = 15)
+    gif(anim, "acoustic2D.gif", fps = 15)
     savefig("acoustic2D.png")
     return
 end
