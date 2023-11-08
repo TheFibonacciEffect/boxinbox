@@ -63,7 +63,7 @@ end
     Vx        = @zeros(nx+1,ny  )
     Vy        = @zeros(nx  ,ny+1)
     # Initial conditions
-    # P        .= Data.Array([exp(-((ix-1)*dx-0.5*lx)^2 -((iy-1)*dy-0.5*ly)^2) for ix=1:size(P,1), iy=1:size(P,2)])
+    P        .= Data.Array([exp(-((ix-1)*dx-0.5*lx)^2 -((iy-1)*dy-0.5*ly)^2) for ix=1:size(P,1), iy=1:size(P,2)])
     dt        = min(dx,dy)/sqrt(k/ρ)/4.1
     # Preparation of visualisation
     ENV["GKSwstype"]="nul"; if isdir("viz2D_out")==false mkdir("viz2D_out") end; loadpath = "./viz2D_out/"; anim = Animation(loadpath,String[])
