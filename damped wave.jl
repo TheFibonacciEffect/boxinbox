@@ -15,7 +15,7 @@ using Plots, Printf, Statistics
 end
 
 @parallel function compute_P!(P::Data.Array, Vx::Data.Array, Vy::Data.Array, dt::Data.Number, k::Data.Number, dx::Data.Number, dy::Data.Number)
-    @all(P) = @all(P) - dt*k*(@d_xa(Vx)/dx + @d_ya(Vy)/dy + 0*@all(P))
+    @all(P) = @all(P) - dt*k*(@d_xa(Vx)/dx + @d_ya(Vy)/dy + 0.5*@all(P))
     return
 end
 
@@ -60,7 +60,7 @@ end
     for it = 1:nt
         if (it==11)  global wtime0 = Base.time()  end
         @parallel compute_V!(Vx, Vy, P, dt, ρ, dx, dy)
-        @parallel boundary!(P, 0.0, 0.0, 0.0, 0.0)
+        @parallel boundary!(P, 1.0, 0.0, 0.0, 0.0)
         @parallel compute_P!(P, Vx, Vy, dt, k, dx, dy)
         t = t + dt
         # Visualisation
