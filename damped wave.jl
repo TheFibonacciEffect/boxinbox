@@ -33,13 +33,13 @@ end
 end
 
 @parallel_indices (i,j) function innerbox!(P::Data.Array, P_left::Data.Number, P_right::Data.Number, P_top::Data.Number, P_bottom::Data.Number)
-    if i==size(P,1) ÷ 3
+    if i==size(P,1) ÷ 3 && j <= 2*size(P,2) ÷ 3 && j >= size(P,2) ÷ 3
         P[i,j] = P_left
-    elseif i==2*size(P,1) ÷ 3
+    elseif i==2*size(P,1) ÷ 3 && j <= 2*size(P,2) ÷ 3 && j >= size(P,2) ÷ 3
         P[i,j] = P_right
-    elseif j==size(P,2) ÷ 3
+    elseif j==size(P,2) ÷ 3 && i <= 2*size(P,1) ÷ 3 && i >= size(P,1) ÷ 3
         P[i,j] = P_bottom
-    elseif j==2*size(P,2) ÷ 3
+    elseif j==2*size(P,2) ÷ 3 && i <= 2*size(P,1) ÷ 3 && i >= size(P,1) ÷ 3
         P[i,j] = P_top
     end
     return
